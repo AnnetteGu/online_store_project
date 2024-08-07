@@ -2,6 +2,8 @@ package com.annette.spring.project.online_store.entity;
 
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -85,6 +87,12 @@ public class User {
         this.balance = balance;
         this.role = role;
         this.accessMode = accessMode;
+    }
+
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(5);
+
+        this.password = passwordEncoder.encode(password);
     }
 
     @Override
