@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.annette.spring.project.online_store.entity.Settings;
 import com.annette.spring.project.online_store.entity.User;
 import com.annette.spring.project.online_store.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,6 +55,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
+
+        Settings settings = new Settings();
+        settings.setTheme("day");
+        settings.setLanguage("ru");
+
+        user.setSettings(settings);
 
         userRepository.save(user);
 
