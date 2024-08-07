@@ -3,6 +3,8 @@ package com.annette.spring.project.online_store.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.annette.spring.project.online_store.entity.User;
@@ -22,6 +25,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public List<User> getAllUsers() {
 
@@ -29,17 +33,18 @@ public class UserController {
 
     }
 
-    @GetMapping("users/{id}")
-    public User getUser(@PathVariable int id) { 
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable int id, Authentication authentication) { 
 
-        return userService.getUser(id);
+        User currentUser = userService.getUserByLogin(authentication.getName());
 
-    }
-
-    @GetMapping("users/{login}")
-    public User getUserByLogin(@PathVariable String login) {
-
-        return userService.getUserByLogin(login);
+        if (currentUser.getId() == id) 
+            return userService.getUser(id);
+        else {
+            System.out.println("Вы не можете получить данные этого пользователя");
+            return currentUser;
+        }
 
     }
 
@@ -52,21 +57,47 @@ public class UserController {
 
     }
 
-    @PutMapping("/users")
-    public User updateUser(@RequestBody User user) {
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @PutMapping("/users/id")
+    public String updateUser(@RequestBody String fields, @RequestParam int id, Authentication authentication) {
 
-        userService.saveUser(user);
+        User currentUser = userService.getUserByLogin(authentication.getName());
 
-        return user;
+        if (currentUser.getRole().equals("ROLE_ADMIN")) {
+            userService.updateUser(fields, id);
+            return "User with id = " + id + " was updated";
+        } 
+        else {
+            if (currentUser.getId() == id) {
+                userService.updateUser(fields, id);
+                return "User with id = " + id + " was updated";
+            } 
+            else {
+                return "You cannot update this user";
+            }
+        }
 
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
     @DeleteMapping("/users/{id}")
-    public String deleteUser(@PathVariable int id) {
+    public String deleteUser(@PathVariable int id, Authentication authentication) {
 
-        userService.deleteUser(id);
+        User currentUser = userService.getUserByLogin(authentication.getName());
 
-        return "User with id " + id + " was deleted";
+        if (currentUser.getRole().equals("ROLE_ADMIN")) {
+            userService.deleteUser(id);
+            return "User with id " + id + " was deleted";
+        }
+        else {
+            if (currentUser.getId() == id) {
+                userService.deleteUser(id);
+                return "User with id " + id + " was deleted";
+            }
+            else {
+                return "You cannot delete this user";
+            }
+        }
 
     }
 

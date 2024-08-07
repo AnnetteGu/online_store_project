@@ -14,6 +14,8 @@ public interface UserService {
 
     public User saveUser(User user);
 
+    public User updateUser(String fields, int id);
+
     public void deleteUser(int id);
     
 
