@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User addUser(User user) {
 
         Settings settings = new Settings();
         settings.setTheme("day");

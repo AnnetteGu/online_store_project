@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.annette.spring.project.online_store.entity.Settings;
 import com.annette.spring.project.online_store.entity.User;
+import com.annette.spring.project.online_store.exception_handling.UserBadAuthoritiesException;
 import com.annette.spring.project.online_store.service.UserService;
 
 @RestController
@@ -42,10 +43,9 @@ public class UserController {
 
         if (currentUser.getId() == id) 
             return userService.getUser(id);
-        else {
-            System.out.println("Вы не можете получить данные этого пользователя");
-            return currentUser;
-        }
+        else 
+            throw new UserBadAuthoritiesException(
+                "Вы не можете получить данные этого пользователя");
 
     }
 
@@ -58,17 +58,16 @@ public class UserController {
         if (currentUser.getId() == userId) {
             return userService.getUserSettings(userId);
         }
-        else {
-            System.out.println("You cannot get settings of this user");
-            return userService.getUserSettings(currentUser.getId());
-        }
+        else 
+            throw new UserBadAuthoritiesException(
+                "Вы не можете получить данные о настройках этого пользователя");
 
     }
 
     @PostMapping("/users")
-    public User saveUser(@RequestBody User user) {
+    public User addUser(@RequestBody User user) {
 
-        userService.saveUser(user);
+        userService.addUser(user);
 
         return user;
 
@@ -83,16 +82,16 @@ public class UserController {
 
         if (currentUser.getRole().equals("ROLE_ADMIN")) {
             userService.updateUser(fields, id);
-            return "User with id = " + id + " was updated";
+            return "Пользователь с id = " + id + " был обновлён";
         } 
         else {
             if (currentUser.getId() == id) {
                 userService.updateUser(fields, id);
-                return "User with id = " + id + " was updated";
+                return "Пользователь с id = " + id + " был обновлён";
             } 
-            else {
-                return "You cannot update this user";
-            }
+            else 
+                throw new UserBadAuthoritiesException(
+                    "Вы не можете обновить этого пользователя");
         }
 
     }
@@ -106,11 +105,10 @@ public class UserController {
 
             if (currentUser.getId() == userId) {
                 userService.updateUserSettings(fields, userId);
-                return "Settings of user with id = " + userId + " was updated";
+                return "Настройки пользователя с id = " + userId + " были обновлены";
             }
-            else {
-                return "You cannot update this user";
-            }
+            else throw new UserBadAuthoritiesException(
+                "Вы не можете обновить настройки этого пользователя");
 
     }
 
@@ -122,16 +120,16 @@ public class UserController {
 
         if (currentUser.getRole().equals("ROLE_ADMIN")) {
             userService.deleteUser(id);
-            return "User with id " + id + " was deleted";
+            return "Пользователь с id " + id + " был удалён";
         }
         else {
             if (currentUser.getId() == id) {
                 userService.deleteUser(id);
-                return "User with id " + id + " was deleted";
+                return "Пользователь с id " + id + " был удалён";
             }
-            else {
-                return "You cannot delete this user";
-            }
+            else 
+                throw new UserBadAuthoritiesException(
+                    "Вы не можете удалить этого пользователя");
         }
 
     }

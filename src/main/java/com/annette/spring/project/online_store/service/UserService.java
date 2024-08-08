@@ -15,7 +15,7 @@ public interface UserService {
 
     public Settings getUserSettings(int id);
 
-    public User saveUser(User user);
+    public User addUser(User user);
 
     public User updateUser(String fields, int id);
 
