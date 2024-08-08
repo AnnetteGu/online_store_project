@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.annette.spring.project.online_store.entity.Settings;
 import com.annette.spring.project.online_store.entity.User;
 import com.annette.spring.project.online_store.service.UserService;
 
@@ -48,6 +49,22 @@ public class UserController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @GetMapping("/users/settings/{id}")
+    public Settings getUserSettings(@PathVariable(name = "id") int userId, Authentication authentication) {
+
+        User currentUser = userService.getUserByLogin(authentication.getName());
+
+        if (currentUser.getId() == userId) {
+            return userService.getUserSettings(userId);
+        }
+        else {
+            System.out.println("You cannot get settings of this user");
+            return userService.getUserSettings(currentUser.getId());
+        }
+
+    }
+
     @PostMapping("/users")
     public User saveUser(@RequestBody User user) {
 
@@ -59,7 +76,8 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
     @PutMapping("/users/id")
-    public String updateUser(@RequestBody String fields, @RequestParam int id, Authentication authentication) {
+    public String updateUser(@RequestBody String fields, @RequestParam int id, 
+        Authentication authentication) {
 
         User currentUser = userService.getUserByLogin(authentication.getName());
 
@@ -76,6 +94,23 @@ public class UserController {
                 return "You cannot update this user";
             }
         }
+
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @PutMapping("/users/settings/id")
+    public String updateUserSettings(@RequestBody String fields, @RequestParam int userId, 
+        Authentication authentication) {
+
+            User currentUser = userService.getUserByLogin(authentication.getName());
+
+            if (currentUser.getId() == userId) {
+                userService.updateUserSettings(fields, userId);
+                return "Settings of user with id = " + userId + " was updated";
+            }
+            else {
+                return "You cannot update this user";
+            }
 
     }
 

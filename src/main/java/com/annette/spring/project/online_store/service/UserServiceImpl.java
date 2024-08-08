@@ -41,6 +41,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Settings getUserSettings(int id) {
+
+        Optional<User> optional = userRepository.findById(id);
+
+        User user = new User();
+
+        if (optional.isPresent()) user = optional.get();
+
+        return user.getSettings();
+
+    }
+
+    @Override
     public User getUserByLogin(String login) {
 
         Optional<User> optional = userRepository.findByLogin(login);
@@ -61,7 +74,7 @@ public class UserServiceImpl implements UserService {
         settings.setLanguage("ru");
 
         user.setSettings(settings);
-
+        
         userRepository.save(user);
 
         return user;
@@ -73,7 +86,6 @@ public class UserServiceImpl implements UserService {
     public User updateUser(String fields, int id) {
 
         ObjectMapper objectMapper = new ObjectMapper();
-
         Map<String, String> resultMap = new LinkedHashMap<>();
 
         try {
@@ -114,6 +126,44 @@ public class UserServiceImpl implements UserService {
 
         return currentUser;
         
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public User updateUserSettings(String fields, int id) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> resultMap = new LinkedHashMap<>();
+
+        try {
+            resultMap = objectMapper.readValue(fields, LinkedHashMap.class);
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());  
+        }
+
+        User currentUser = userRepository.findById(id).get();
+
+        Settings settings = currentUser.getSettings();
+
+        for (Map.Entry<String, String> field : resultMap.entrySet()) {
+            switch (field.getKey()) {
+                case "theme":
+                    settings.setTheme(field.getValue());
+                    break;
+                case "language":
+                    settings.setLanguage(field.getValue());
+                    break;
+                default:
+                    System.out.println("Такого поля нет");
+                    break;
+            }
+        }
+
+        currentUser.setSettings(settings);
+        userRepository.save(currentUser);
+
+        return currentUser;
+
     }
 
     @Override
