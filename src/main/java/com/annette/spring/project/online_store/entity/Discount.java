@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table(name = "discounts")
@@ -18,7 +17,6 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Discount {
 
     @Id
@@ -34,5 +32,18 @@ public class Discount {
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    public boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    @Override
+    public String toString() {
+        return "Discount [id=" + id + ", name=" + name + ", size=" + size + ", isActive=" + isActive + "]";
+    }
 
 }
