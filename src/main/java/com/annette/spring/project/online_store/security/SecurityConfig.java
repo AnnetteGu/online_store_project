@@ -44,6 +44,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "api/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "api/products/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "api/categories").permitAll()
                 .requestMatchers("/api/**").authenticated())
             .userDetailsService(userDetailsService())
             .formLogin(Customizer.withDefaults())

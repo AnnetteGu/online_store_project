@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,7 +42,7 @@ public class Product {
     @Column(name = "is_allowed")
     private boolean isAllowed;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Review> productReviews;
 
@@ -50,7 +51,7 @@ public class Product {
         CascadeType.MERGE,
         CascadeType.PERSIST,
         CascadeType.REFRESH
-    })
+    }, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<PurchaseHistory> purchaseHistories;
 
@@ -59,7 +60,7 @@ public class Product {
         CascadeType.MERGE,
         CascadeType.PERSIST,
         CascadeType.REFRESH
-    })
+    }, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Basket> baskets;
 
@@ -68,18 +69,26 @@ public class Product {
         CascadeType.MERGE,
         CascadeType.PERSIST,
         CascadeType.REFRESH
-    })
+    }, fetch = FetchType.LAZY)
     @JoinTable(
         name = "product_categories",
         joinColumns = @JoinColumn(name = "product_id"),
         inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private List<Category> category;
+    private List<Category> categories;
 
     public Product(int id, int sellerId, String name, int price, boolean isAllowed) {
         this.id = id;
         this.sellerId = sellerId;
         this.name = name;
         this.price = price;
+        this.isAllowed = isAllowed;
+    }
+
+    public boolean getIsAllowed() {
+        return this.isAllowed;
+    }
+
+    public void setIsAllowed(boolean isAllowed) {
         this.isAllowed = isAllowed;
     }
 
