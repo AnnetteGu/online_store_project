@@ -1,6 +1,7 @@
 package com.annette.spring.project.online_store.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +26,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/categories")
-    public List<Category> getAllCategories() {
+    public List<Map<String, Object>> getAllCategories() {
 
         return categoryService.getAllCategories();
 
@@ -33,7 +34,7 @@ public class CategoryController {
 
     @PreAuthorize("hasAnyRole('ROLE_SELLER', 'ROLE_ADMIN')")
     @GetMapping("/categories/{id}")
-    public Category getCategory(@PathVariable int id) {
+    public Map<String, Object> getCategory(@PathVariable int id) {
 
         return categoryService.getCategory(id);
 

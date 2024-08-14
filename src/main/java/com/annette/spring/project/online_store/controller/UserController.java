@@ -1,6 +1,7 @@
 package com.annette.spring.project.online_store.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/users")
-    public List<User> getAllUsers() {
+    public List<Map<String, Object>> getAllUsers() {
 
         return userService.getAllUsers();
 
@@ -37,7 +38,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable int id, Authentication authentication) { 
+    public Map<String, Object> getUser(@PathVariable int id, Authentication authentication) { 
 
         User currentUser = userService.getUserByLogin(authentication.getName());
 

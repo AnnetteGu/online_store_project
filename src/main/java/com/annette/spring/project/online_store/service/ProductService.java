@@ -1,16 +1,17 @@
 package com.annette.spring.project.online_store.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.annette.spring.project.online_store.entity.Product;
 
 public interface ProductService {
 
-    public List<Product> getAllProducts();
+    public List<Map<String, Object>> getAllProducts();
 
-    public List<Product> getAllProductsByCategory(String category);
+    public List<Map<String, Object>> getAllProductsByCategory(String category);
 
-    public Product getProduct(int id);
+    public Map<String, Object> getProduct(int id);
 
     public Product getProductByName(String name);
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.annette.spring.project.online_store.entity.Category;
 import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.repository.CategoryRepository;
+import com.annette.spring.project.online_store.repository.ProductRepoCustom;
 import com.annette.spring.project.online_store.repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,29 +23,29 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Autowired
+    private ProductRepoCustom productRepoCustom;
+
+    @Autowired
     private CategoryRepository categoryRepository;
 
     @Override
-    public List<Product> getAllProducts() {
+    public List<Map<String, Object>> getAllProducts() {
         
-        return productRepository.findAll();
+        return productRepoCustom.findAllCustom();
 
     }
 
     @Override
-    public List<Product> getAllProductsByCategory(String category) {
-        throw new UnsupportedOperationException("Unimplemented method 'getAllProductsByCategory'");
+    public List<Map<String, Object>> getAllProductsByCategory(String category) {
+        
+        return productRepoCustom.findByCategory(category);
+
     }
 
     @Override
-    public Product getProduct(int id) {
+    public Map<String, Object> getProduct(int id) {
         
-        Optional<Product> optional = productRepository.findById(id);
-        Product product = null;
-
-        if (optional.isPresent()) product = optional.get();
-        
-        return product;
+        return productRepoCustom.findByIdCustom(id);
 
     }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.annette.spring.project.online_store.entity.Settings;
 import com.annette.spring.project.online_store.entity.User;
 import com.annette.spring.project.online_store.repository.UserRepository;
+import com.annette.spring.project.online_store.repository.UserRepoCustom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,23 +21,20 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    public List<User> getAllUsers() {
+    @Autowired
+    private UserRepoCustom userRepoCustom;
 
-        return userRepository.findAll();
+    @Override
+    public List<Map<String, Object>> getAllUsers() {
+
+        return userRepoCustom.findAllCustom();
 
     }
 
     @Override
-    public User getUser(int id) {
+    public Map<String, Object> getUser(int id) {
 
-        Optional<User> optional = userRepository.findById(id);
-
-        User user = null;
-
-        if (optional.isPresent()) user = optional.get();
-
-        return user;
+        return userRepoCustom.findByIdCustom(id);
        
     }
 

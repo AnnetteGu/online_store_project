@@ -1,14 +1,15 @@
 package com.annette.spring.project.online_store.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.annette.spring.project.online_store.entity.Category;
 
 public interface CategoryService {
 
-    public List<Category> getAllCategories();
+    public List<Map<String, Object>> getAllCategories();
 
-    public Category getCategory(int id);
+    public Map<String, Object> getCategory(int id);
 
     public Category addCategory(Category category);
 

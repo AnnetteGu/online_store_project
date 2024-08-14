@@ -3,12 +3,12 @@ package com.annette.spring.project.online_store.service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.annette.spring.project.online_store.entity.Category;
+import com.annette.spring.project.online_store.repository.CategoryRepoCustom;
 import com.annette.spring.project.online_store.repository.CategoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,22 +19,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private CategoryRepoCustom categoryRepoCustom;
+
     @Override
-    public List<Category> getAllCategories() {
+    public List<Map<String, Object>> getAllCategories() {
         
-        return categoryRepository.findAll();
+        return categoryRepoCustom.findAllCustom();
 
     }
 
     @Override
-    public Category getCategory(int id) {
-        
-        Optional<Category> optional = categoryRepository.findById(id);
-        Category category = null;
+    public Map<String, Object> getCategory(int id) {
 
-        if (optional.isPresent()) category = optional.get();
-
-        return category;
+        return categoryRepoCustom.findByIdCustom(id);
 
     }
 
