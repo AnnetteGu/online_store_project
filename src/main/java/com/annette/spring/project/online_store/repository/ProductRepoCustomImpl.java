@@ -101,20 +101,48 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
 
         Query query = entityManager.createQuery(
             "select p.id, p.sellerId, p.name, p.price, p.isAllowed from Product as p " +
-            "where :categoryName in(p.categories)");
+            "inner join p.categories as pc " +
+            "where :categoryName in(select pc.name from p.categories as pc)");
         
         query.setParameter("categoryName", category);
 
         List<Object[]> queryResult = query.getResultList();
 
         for (Object[] object : queryResult) {
-            for (int i = 0; i < object.length; i++) {
-                System.out.println(object[i]);
+            for (Object o : object) {
+                System.out.println(o);
             }
             System.out.println();
         }
 
         List<Map<String, Object>> products = new ArrayList<>();
+        Map<String, Object> resultMap = fillMap();
+
+        for (Object[] object : queryResult) {
+            for (int i = 0; i < object.length; i++) {
+                switch (i) {
+                    case 0:
+                        resultMap.put("id", object[i]);
+                        break;
+                    case 1:
+                        resultMap.put("sellerId", object[i]);
+                        break;
+                    case 2:
+                        resultMap.put("name", object[i]);
+                        break;
+                    case 3:
+                        resultMap.put("price", object[i]);
+                        break;
+                    case 4:
+                        resultMap.put("isAllowed", object[i]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            products.add(resultMap);
+            resultMap = fillMap();
+        }
 
         return products;
 
