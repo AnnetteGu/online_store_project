@@ -87,19 +87,22 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId).get();
         Category category = categoryRepository.findById(categoryId).get();
 
-        List<Category> categories = product.getCategories();
-        List<Product> products = category.getProductsInCategory();
+        List<Product> productsInCategory = category.getProductsInCategory();
 
-        categories.add(category);
-        products.add(product);
+        if (productsInCategory.indexOf(product) == -1) {
 
-        product.setCategories(categories);
-        category.setProductsInCategory(products);
+            List<Category> categories = product.getCategories();
 
-        productRepository.save(product);
-        categoryRepository.save(category);
+            categories.add(category);
 
-        return "Товар " + product.getName() + " был добавлен в категорию " + category.getName();
+            product.setCategories(categories);
+
+            productRepository.save(product);
+
+            return "Товар " + product.getName() + " был добавлен в категорию " + category.getName();
+
+        }
+        else return "Товар " + product.getName() + " уже был добавлен в категорию " + category.getName();
 
     }
 

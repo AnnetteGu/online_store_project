@@ -1,22 +1,20 @@
 package com.annette.spring.project.online_store.service;
 
 import java.util.List;
-
-import com.annette.spring.project.online_store.entity.Basket;
-import com.annette.spring.project.online_store.entity.Product;
+import java.util.Map;
 
 public interface BasketService {
 
-    public List<Product> getAllBasketProducts(int basketId);
+    public List<Map<String, Object>> getAllBasketProducts(int userId);
 
-    public Product getBasketProduct(int productId);
+    public Map<String, Object> getBasketProduct(int productId);
 
-    public Product addProductInBasket(Product product);
+    public String addProductInBasket(String productData, int userId);
 
-    public Basket updateBasket(String fields, int basketId);
+    public String updateBasketProduct(String fields, int basketId);
 
     public void deleteBasketProduct(int productId);
 
-    public String getTotalBasketSum(int basketId);
+    public List<Map<String, Object>> getTotalBasketSum(int userId);
 
 }
