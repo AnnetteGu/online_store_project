@@ -1,5 +1,6 @@
 package com.annette.spring.project.online_store.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.annette.spring.project.online_store.entity.Discount;
 import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.repository.DiscountRepository;
+import com.annette.spring.project.online_store.repository.ProductRepoCustom;
+import com.annette.spring.project.online_store.repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,6 +22,12 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Autowired
     private DiscountRepository discountRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductRepoCustom productRepoCustom;
 
     @Override
     public List<Discount> getAllDiscounts() {
@@ -91,8 +100,62 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    public List<Product> getAllModifiedProducts() {
-        throw new UnsupportedOperationException("Unimplemented method 'getAllModifiedProducts'");
+    public List<Map<String, Object>> getAllModifiedProducts() {
+        
+        List<Product> allProducts = productRepository.findAll();
+        List<Map<String, Object>> products = new ArrayList<>();
+        Map<String, Object> resultMap = fillMap();
+
+        List<Discount> allDiscounts = discountRepository.findAll();
+        Discount discount = null;
+
+        for (int i = 0; i < allDiscounts.size(); i++) {
+            if (allDiscounts.get(i).getIsActive())
+                discount = discountRepository.findById(i).get();
+        }
+
+        int newPrice = 0;
+
+        if (discount != null) {
+            for (Product product : allProducts) {
+                resultMap.put("id", product.getId());
+                resultMap.put("sellerId", product.getSellerId());
+                resultMap.put("name", product.getName());
+                
+                newPrice = percent(product.getPrice(), discount.getSize());
+
+                resultMap.put("price", newPrice);
+                resultMap.put("isAllowed", product.getIsAllowed());
+
+                products.add(resultMap);
+                resultMap = fillMap();
+            }
+
+            return products;
+        }
+        else return productRepoCustom.findAllCustom();
+
+    }
+
+    public static int percent(int sum, int disc) {
+
+        return (int) (sum - (sum * ((double) disc / 100)));
+
+    }
+
+    private static Map<String, Object> fillMap() {
+
+        Map<String, Object> map = new LinkedHashMap<>();
+        Object tmp = new Object();
+
+        map.put("id", tmp);
+        map.put("sellerId", tmp);
+        map.put("name", tmp);
+        map.put("price", tmp);
+        map.put("isAllowed", tmp);
+
+        return map;
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.annette.spring.project.online_store.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,6 +64,13 @@ public class DiscountController {
         discountService.deleteDiscount(id);
 
         return "Скидка с id = " + id + " была удалена";
+
+    }
+
+    @GetMapping("/discounts/products")
+    public List<Map<String, Object>> getAllModifiedProducts() {
+
+        return discountService.getAllModifiedProducts();
 
     }
 

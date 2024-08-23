@@ -41,6 +41,8 @@ public class UserGlobalExceptionHandler {
 
         UserIncorrectData data = new UserIncorrectData();
         
+        exception.printStackTrace();
+        
         data.setInfo(exception.getMessage());
 
         return new ResponseEntity<UserIncorrectData>(data, 

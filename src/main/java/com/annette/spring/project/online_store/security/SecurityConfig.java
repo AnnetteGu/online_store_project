@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "api/products").permitAll()
                 .requestMatchers(HttpMethod.GET, "api/products/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "api/categories").permitAll()
+                .requestMatchers(HttpMethod.GET, "api/discounts/products").permitAll()
                 .requestMatchers("/api/**").authenticated())
             .userDetailsService(userDetailsService())
             .formLogin(Customizer.withDefaults())
