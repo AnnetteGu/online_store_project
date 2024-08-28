@@ -23,6 +23,9 @@ public interface UserService {
     public User updateUserSettings(String fields, int id);
 
     public void deleteUser(int id);
-    
+
+    public String refillBalance(String data);
+
+    public String purchaseProducts(int userId);
 
 }

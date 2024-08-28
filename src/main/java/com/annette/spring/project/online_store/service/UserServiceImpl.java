@@ -8,9 +8,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.annette.spring.project.online_store.entity.Basket;
+import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.entity.Settings;
 import com.annette.spring.project.online_store.entity.User;
+import com.annette.spring.project.online_store.exception_handling.UserBadAuthoritiesException;
 import com.annette.spring.project.online_store.repository.UserRepository;
+import com.annette.spring.project.online_store.repository.BasketRepository;
+import com.annette.spring.project.online_store.repository.ProductRepository;
 import com.annette.spring.project.online_store.repository.UserRepoCustom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,10 +24,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class UserServiceImpl implements UserService {
 
     @Autowired
+    private BasketRepository basketRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
     private UserRepoCustom userRepoCustom;
+
+    @Autowired
+    private BasketServiceImpl basketServiceImpl;
+
+    @Autowired
+    private PurchaseHistoryService purchaseHistoryService;
 
     @Override
     public List<Map<String, Object>> getAllUsers() {
@@ -106,8 +123,7 @@ public class UserServiceImpl implements UserService {
                     currentUser.setPassword(field.getValue());     
                     break;
                 case "balance":
-                    currentUser.setBalance(Double.parseDouble(field.getValue()));  
-                    break;
+                    throw new UserBadAuthoritiesException("Вы не можете изменить это поле"); 
                 case "role":
                     currentUser.setRole(field.getValue());   
                     break;
@@ -168,6 +184,73 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(int id) {
 
         userRepository.deleteById(id);
+        
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public String refillBalance(String userData) {
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> resultMap = new LinkedHashMap<>();
+
+        try {
+            resultMap = objectMapper.readValue(userData, LinkedHashMap.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        int userId = Integer.parseInt(resultMap.get("userId"));
+        double userNewBalance = Double.parseDouble(resultMap.get("userBalance"));
+
+        User user = null;
+
+        try {
+            user = userRepository.findById(userId).get();
+            user.setBalance(userNewBalance);
+            userRepository.save(user);
+        } catch (Exception e) {
+            System.out.println("Что-то не так с юзером");
+        }
+
+        return "Баланс пользователя с id = " + userId + " был пополнен";
+
+    }
+
+    @Override
+    public String purchaseProducts(int userId) {
+
+        User user = userRepository.findById(userId).get();
+        List<Basket> userBaskets = basketServiceImpl.getUserBaskets(userId);
+        Product product;
+        int productId;
+
+        double userBalance = user.getBalance();
+        double totalSum = basketServiceImpl.getTotalSum(userId);
+
+        if (userBalance >= totalSum) {
+            userBalance -= totalSum;
+            user.setBalance(userBalance);
+            userRepository.save(user);
+
+            for (Basket basket : userBaskets) {
+
+                productId = basket.getProductId();
+                product = productRepository.findById(productId).get();
+
+                try {
+                    purchaseHistoryService.addProductInHistory(product, userId);
+                    basketRepository.deleteById(basket.getId());
+                } catch (Exception e) {
+                    System.out.println("Что-то пошло не так");
+                    e.printStackTrace();
+                }
+                
+            }
+
+            return "Покупка успешно совершена";
+        } else
+            return "На балансе недостаточно средств";
         
     }
 
