@@ -75,8 +75,8 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
-    @PutMapping("/users/id")
-    public String updateUser(@RequestBody String fields, @RequestParam int id, 
+    @PutMapping("/users")
+    public String updateUser(@RequestBody String fields, @RequestParam(name = "id") int id, 
         Authentication authentication) {
 
         User currentUser = userService.getUserByLogin(authentication.getName());
@@ -132,6 +132,28 @@ public class UserController {
                 throw new UserBadAuthoritiesException(
                     "Вы не можете удалить этого пользователя");
         }
+
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/users/balance")
+    public String refillBalance(@RequestBody String userData) {
+
+        return userService.refillBalance(userData);
+
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @PostMapping("/users/purchase/{id}")
+    public String purchaseProducts(@PathVariable(name = "id") int userId, Authentication authentication) {
+
+        User user = userService.getUserByLogin(authentication.getName());
+
+        if (user.getId() == userId) 
+            return userService.purchaseProducts(userId);
+        else
+            throw new UserBadAuthoritiesException(
+                "Вы не можете совершить покупку от имени этого пользователя");
 
     }
 

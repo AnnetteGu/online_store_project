@@ -168,7 +168,7 @@ public class BasketServiceImpl implements BasketService {
         List<Map<String, Object>> basketPriceList = new ArrayList<>();
         Map<String, Object> resultMap = fillPriceMap();
         Product product;
-        int totalSum = 0;
+        double totalSum = 0;
 
         for (Basket basket : userBaskets) {
             resultMap.put("productId", basket.getProductId());
@@ -188,6 +188,50 @@ public class BasketServiceImpl implements BasketService {
         basketPriceList.add(Map.of("totalSum", totalSum));
 
         return basketPriceList;
+
+    }
+
+    public List<Basket> getUserBaskets(int userId) {
+
+        User user = userRepository.findById(userId).get();
+
+        List<Basket> allBaskets = basketRepository.findAll();
+        List<Basket> userBaskets = new ArrayList<>();
+
+        for (Basket basket : allBaskets) {
+            for (User u : basket.getUsersBaskets()) {
+                if (u.equals(user)) userBaskets.add(basket);
+            }
+        }
+
+        return userBaskets;
+
+    }
+
+    public double getTotalSum(int userId) {
+
+        User user = userRepository.findById(userId).get();
+
+        List<Basket> allBaskets = basketRepository.findAll();
+        List<Basket> userBaskets = new ArrayList<>();
+
+        for (Basket basket : allBaskets) {
+            for (User u : basket.getUsersBaskets()) {
+                if (u.equals(user)) userBaskets.add(basket);
+            }
+        }
+
+        double totalSum = 0;
+        int productId = 0;
+        Product product;
+
+        for (Basket basket : userBaskets) {
+            productId = basket.getProductId();
+            product = productRepository.findById(productId).get();
+            totalSum += (product.getPrice() * basket.getProductAmount());
+        }
+
+        return totalSum;
 
     }
 
