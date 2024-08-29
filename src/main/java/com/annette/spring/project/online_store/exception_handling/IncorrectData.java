@@ -7,7 +7,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserIncorrectData {
+public class IncorrectData {
 
     private String info;
 

@@ -29,11 +29,17 @@ public class PurchaseHistory {
     @Column(name = "product_id")
     private int productId;
 
+    @Column(name = "seller_id")
+    private int sellerId;
+
     @Column(name = "customer_id")
     private int customerId;
 
     @Column(name = "product_name")
     private String productName;
+
+    @Column(name = "product_amount")
+    private int productAmount;
 
     @Column(name = "actual_price")
     private int actualPrice;

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.annette.spring.project.online_store.entity.Category;
+import com.annette.spring.project.online_store.exception_handling.CategoryDuplicateException;
 import com.annette.spring.project.online_store.repository.CategoryRepoCustom;
 import com.annette.spring.project.online_store.repository.CategoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +39,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category addCategory(Category category) {
+
+        List<Category> allCategories = categoryRepository.findAll();
+
+        for (Category c : allCategories) {
+            if (c.getName().equals(category.getName()))
+                throw new CategoryDuplicateException("Такая категория уже есть");
+        }
         
         return categoryRepository.save(category);
 
