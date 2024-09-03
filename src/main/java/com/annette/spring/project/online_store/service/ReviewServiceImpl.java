@@ -1,7 +1,6 @@
 package com.annette.spring.project.online_store.service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,11 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.annette.spring.project.online_store.entity.Review;
 import com.annette.spring.project.online_store.repository.ReviewRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ReviewServiceImpl implements ReviewService {
+public class ReviewServiceImpl extends BaseService implements ReviewService {
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -33,18 +30,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Review addReview(String data, int userId) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-
-        try {
-            resultMap = objectMapper.readValue(data, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Map<String, Object> resultMap = jsonToMap(data);
 
         Review review = new Review();
 
@@ -57,18 +46,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Review updateReview(String data) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-
-        try {
-            resultMap = objectMapper.readValue(data, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Map<String, Object> resultMap = jsonToMap(data);
 
         int id = (Integer) resultMap.get("id");
         Review review = reviewRepository.findById(id).get();

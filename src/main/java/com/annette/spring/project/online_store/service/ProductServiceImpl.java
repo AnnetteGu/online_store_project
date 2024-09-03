@@ -1,6 +1,5 @@
 package com.annette.spring.project.online_store.service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,11 +12,9 @@ import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.repository.CategoryRepository;
 import com.annette.spring.project.online_store.repository.ProductRepoCustom;
 import com.annette.spring.project.online_store.repository.ProductRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
@@ -68,21 +65,13 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public String addProductCategory(String idData) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
+        Map<String, Object> resultMap = jsonToMap(idData);
 
-        try {
-            resultMap = objectMapper.readValue(idData, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            System.out.println(e.getMessage());
-        }
-
-        int productId = Integer.parseInt(resultMap.get("productId"));
-        int categoryId = Integer.parseInt(resultMap.get("categoryId"));
+        int productId = (Integer) resultMap.get("productId");
+        int categoryId = (Integer) resultMap.get("categoryId");
         
         Product product = productRepository.findById(productId).get();
         Category category = categoryRepository.findById(categoryId).get();
@@ -106,34 +95,26 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Product updateProduct(String fields, int id) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
-
-        try {
-            resultMap = objectMapper.readValue(fields, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            System.out.println(e.getMessage());
-        }
+        Map<String, Object> resultMap = jsonToMap(fields);
 
         Product product = productRepository.findById(id).get();
 
-        for (Map.Entry<String, String> field : resultMap.entrySet()) {
+        for (Map.Entry<String, Object> field : resultMap.entrySet()) {
             switch (field.getKey()) {
                 case "sellerId":
-                    product.setSellerId(Integer.parseInt(field.getValue()));
+                    product.setSellerId((Integer) field.getValue());
                     break;
                 case "name":
-                    product.setName(field.getValue());
+                    product.setName((String) field.getValue());
                     break;
                 case "price":
-                    product.setPrice(Integer.parseInt(field.getValue()));
+                    product.setPrice((Integer) field.getValue());
                     break;
                 case "isAllowed":
-                    product.setIsAllowed(Boolean.parseBoolean(field.getValue()));
+                    product.setIsAllowed((Boolean) field.getValue());
                     break;
                 default:
                     System.out.println("Такого поля нет");

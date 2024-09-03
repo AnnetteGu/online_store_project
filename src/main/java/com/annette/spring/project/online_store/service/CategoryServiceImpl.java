@@ -1,6 +1,5 @@
 package com.annette.spring.project.online_store.service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,11 +10,9 @@ import com.annette.spring.project.online_store.entity.Category;
 import com.annette.spring.project.online_store.exception_handling.CategoryDuplicateException;
 import com.annette.spring.project.online_store.repository.CategoryRepoCustom;
 import com.annette.spring.project.online_store.repository.CategoryRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends BaseService implements CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -51,21 +48,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Category updateCategory(String fields, int id) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
-
-        try {
-            resultMap = objectMapper.readValue(fields, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            System.out.println(e.getMessage());
-        }
+        Map<String, Object> resultMap = jsonToMap(fields);
 
         Category category = categoryRepository.findById(id).get();
-        category.setName(resultMap.get("name"));
+        category.setName((String) resultMap.get("name"));
 
         return categoryRepository.save(category);
 

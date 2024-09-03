@@ -108,13 +108,6 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
 
         List<Object[]> queryResult = query.getResultList();
 
-        for (Object[] object : queryResult) {
-            for (Object o : object) {
-                System.out.println(o);
-            }
-            System.out.println();
-        }
-
         List<Map<String, Object>> products = new ArrayList<>();
         Map<String, Object> resultMap = fillMap();
 

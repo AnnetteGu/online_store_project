@@ -14,11 +14,9 @@ import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.repository.DiscountRepository;
 import com.annette.spring.project.online_store.repository.ProductRepoCustom;
 import com.annette.spring.project.online_store.repository.ProductRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class DiscountServiceImpl implements DiscountService {
+public class DiscountServiceImpl extends BaseService implements DiscountService {
 
     @Autowired
     private DiscountRepository discountRepository;
@@ -56,31 +54,23 @@ public class DiscountServiceImpl implements DiscountService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Discount updateDiscount(String fields, int id) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
-
-        try {
-            resultMap = objectMapper.readValue(fields, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            System.out.println(e.getMessage());
-        }
+        Map<String, Object> resultMap = jsonToMap(fields);
 
         Discount discount = discountRepository.findById(id).get();
 
-        for (Map.Entry<String, String> field : resultMap.entrySet()) {
+        for (Map.Entry<String, Object> field : resultMap.entrySet()) {
             switch (field.getKey()) {
                 case "name":
-                    discount.setName(field.getValue());
+                    discount.setName((String) field.getValue());
                     break;
                 case "size":
-                    discount.setSize(Integer.parseInt(field.getValue()));
+                    discount.setSize((Integer) field.getValue());
                     break;
                 case "isActive":
-                    discount.setIsActive(Boolean.parseBoolean(field.getValue()));
+                    discount.setIsActive((Boolean) field.getValue());
                     break;
                 default:
                     System.out.println("Такого поля нет");
@@ -137,7 +127,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     }
 
-    public static int percent(int sum, int disc) {
+    private static int percent(int sum, int disc) {
 
         return (int) (sum - (sum * ((double) disc / 100)));
 

@@ -15,11 +15,9 @@ import com.annette.spring.project.online_store.repository.BasketRepository;
 import com.annette.spring.project.online_store.repository.ProductRepoCustom;
 import com.annette.spring.project.online_store.repository.ProductRepository;
 import com.annette.spring.project.online_store.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class BasketServiceImpl implements BasketService {
+public class BasketServiceImpl extends BaseService implements BasketService {
 
     @Autowired
     private BasketRepository basketRepository;
@@ -36,19 +34,9 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public List<Map<String, Object>> getAllBasketProducts(int userId) {
         
-        User user = userRepository.findById(userId).get();
-
-        List<Basket> allBaskets = basketRepository.findAll();
-        List<Basket> userBaskets = new ArrayList<>();
-
-        for (Basket basket : allBaskets) {
-            for (User u : basket.getUsersBaskets()) {
-                if (u.equals(user)) userBaskets.add(basket);
-            }
-        }
-
+        List<Basket> userBaskets = getUserBaskets(userId);
         List<Map<String, Object>> basketProducts = new ArrayList<>();
-        Map<String, Object> resultMap = fillBasketListMap();
+        Map<String, Object> resultMap = fillMap('b');
         Product product;
 
         for (Basket basket : userBaskets) {
@@ -63,7 +51,7 @@ public class BasketServiceImpl implements BasketService {
 
             basketProducts.add(resultMap);
 
-            resultMap = fillBasketListMap();
+            resultMap = fillMap('b');
         }
         
         return basketProducts;
@@ -77,23 +65,15 @@ public class BasketServiceImpl implements BasketService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public String addProductInBasket(String productData, int userId) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
+        Map<String, Object> resultMap = jsonToMap(productData);
         User user = userRepository.findById(userId).get();
         Basket basket = new Basket();
 
-        try {
-            resultMap = objectMapper.readValue(productData, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        int productId = Integer.parseInt(resultMap.get("productId"));
-        int productAmount = Integer.parseInt(resultMap.get("productAmount"));
+        int productId = (Integer) resultMap.get("productId");
+        int productAmount = (Integer) resultMap.get("productAmount");
 
         basket.setProductId(productId);
         basket.setProductAmount(productAmount);
@@ -115,23 +95,15 @@ public class BasketServiceImpl implements BasketService {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public String updateBasketProduct(String fields, int basketId) {
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap = new LinkedHashMap<>();
-        
-        try {
-            resultMap = objectMapper.readValue(fields, LinkedHashMap.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Map<String, Object> resultMap = jsonToMap(fields);
 
         Basket basket = basketRepository.findById(basketId).get();
 
-        int productId = Integer.parseInt(resultMap.get("productId"));
-        int productAmount = Integer.parseInt(resultMap.get("productAmount"));
+        int productId = (Integer) resultMap.get("productId");
+        int productAmount = (Integer) resultMap.get("productAmount");
 
         basket.setProductId(productId);
         basket.setProductAmount(productAmount);
@@ -154,19 +126,10 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public List<Map<String, Object>> getTotalBasketSum(int userId) {
         
-        User user = userRepository.findById(userId).get();
-
-        List<Basket> allBaskets = basketRepository.findAll();
-        List<Basket> userBaskets = new ArrayList<>();
-
-        for (Basket basket : allBaskets) {
-            for (User u : basket.getUsersBaskets()) {
-                if (u.equals(user)) userBaskets.add(basket);
-            }
-        }
+        List<Basket> userBaskets = getUserBaskets(userId);
 
         List<Map<String, Object>> basketPriceList = new ArrayList<>();
-        Map<String, Object> resultMap = fillPriceMap();
+        Map<String, Object> resultMap = fillMap('p');
         Product product;
         double totalSum = 0;
 
@@ -182,7 +145,7 @@ public class BasketServiceImpl implements BasketService {
             totalSum += (product.getPrice() * basket.getProductAmount());
 
             basketPriceList.add(resultMap);
-            resultMap = fillPriceMap();
+            resultMap = fillMap('p');
         }
 
         basketPriceList.add(Map.of("totalSum", totalSum));
@@ -210,16 +173,7 @@ public class BasketServiceImpl implements BasketService {
 
     public double getTotalSum(int userId) {
 
-        User user = userRepository.findById(userId).get();
-
-        List<Basket> allBaskets = basketRepository.findAll();
-        List<Basket> userBaskets = new ArrayList<>();
-
-        for (Basket basket : allBaskets) {
-            for (User u : basket.getUsersBaskets()) {
-                if (u.equals(user)) userBaskets.add(basket);
-            }
-        }
+        List<Basket> userBaskets = getUserBaskets(userId);
 
         double totalSum = 0;
         int productId = 0;
@@ -235,30 +189,29 @@ public class BasketServiceImpl implements BasketService {
 
     }
 
-    public static Map<String, Object> fillPriceMap() {
+    public static Map<String, Object> fillMap(char type) {
 
         Map<String, Object> map = new LinkedHashMap<>();
         Object tmp = new Object();
 
-        map.put("productId", tmp);
-        map.put("productName", tmp);
-        map.put("productPrice", tmp);
-        map.put("productAmount", tmp);
-
-        return map;
-
-    }
-
-    public static Map<String, Object> fillBasketListMap() {
-
-        Map<String, Object> map = new LinkedHashMap<>();
-        Object tmp = new Object();
-
-        map.put("id", tmp);
-        map.put("productId", tmp);
-        map.put("productName", tmp);
-        map.put("productPrice", tmp);
-        map.put("productAmount", tmp);
+        switch (type) {
+            case 'p':
+                map.put("productId", tmp);
+                map.put("productName", tmp);
+                map.put("productPrice", tmp);
+                map.put("productAmount", tmp);
+                break;
+            case 'b':
+                map.put("id", tmp);
+                map.put("productId", tmp);
+                map.put("productName", tmp);
+                map.put("productPrice", tmp);
+                map.put("productAmount", tmp);
+                break;
+            default:
+                System.out.println("Такого поля нет");
+                break;
+        }
 
         return map;
 
