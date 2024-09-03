@@ -26,6 +26,12 @@ public class Review {
     @Column(name = "id")
     private int id;
 
+    @Column(name = "product_id")
+    private int productId;
+
+    @Column(name = "customer_id")
+    private int userId;
+
     @Column(name = "text")
     private String text;
 
