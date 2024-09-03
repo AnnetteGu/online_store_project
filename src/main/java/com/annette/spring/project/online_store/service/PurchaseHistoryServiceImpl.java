@@ -17,6 +17,8 @@ import com.annette.spring.project.online_store.entity.Basket;
 import com.annette.spring.project.online_store.entity.Category;
 import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.entity.PurchaseHistory;
+import com.annette.spring.project.online_store.entity.Review;
+import com.annette.spring.project.online_store.exception_handling.AllProductsIsAppreciatedException;
 import com.annette.spring.project.online_store.exception_handling.NoSuchProductException;
 import com.annette.spring.project.online_store.repository.ProductRepository;
 import com.annette.spring.project.online_store.repository.PurchaseHistoryRepository;
@@ -29,6 +31,9 @@ public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private BasketServiceImpl basketServiceImpl;
@@ -175,14 +180,26 @@ public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
     @Override
     public PurchaseHistory getLastProductFromHistoryWithoutReview(int userId) {
 
-        // взять список купленных товаров пользователем
-        // пойти по списку с конца
-        // взять товар
-        // взять список отзывов этого товара
-        // если среди отзывов нет отзыва нашего пользователя - выводим
+        List<PurchaseHistory> userHistories = getUserPurchaseHistory(userId);
+        List<Review> productReviews;
+        int productId = 0;
+        boolean isAppreciated = false;
 
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLastProductFromHistoryWithoutReview'");
+        for (int i = userHistories.size() - 1; i > 0; i--) {
+            productId = userHistories.get(i).getProductId();
+            productReviews = reviewService.getAllProductReviews(productId);
+
+            for (Review review : productReviews) {
+                if (review.getUserId() == userId)
+                    isAppreciated = true;
+            }
+
+            if (!isAppreciated) return userHistories.get(i);
+
+        }
+
+        throw new AllProductsIsAppreciatedException("Все товары в истории оценены");
+
     }
 
     @Override

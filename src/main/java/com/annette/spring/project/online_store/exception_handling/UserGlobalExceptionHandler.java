@@ -63,6 +63,19 @@ public class UserGlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<IncorrectData> handleException(
+        AllProductsIsAppreciatedException exception) {
+
+            IncorrectData data = new IncorrectData();
+
+            data.setInfo(exception.getMessage());
+
+            return new ResponseEntity<>(data, 
+                HttpStatus.OK);
+
+        }
+
+    @ExceptionHandler
+    public ResponseEntity<IncorrectData> handleException(
         Exception exception) {
 
         IncorrectData data = new IncorrectData();

@@ -72,6 +72,21 @@ public class PurchaseHistoryController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_SELLER', 'ROLE_ADMIN')")
+    @GetMapping("/histories/review")
+    public PurchaseHistory getLastProductFromHistoryWithoutReview(@RequestParam(name = "id") int userId, 
+        Authentication authentication) {
+
+        User user = userService.getUserByLogin(authentication.getName());
+
+        if (user.getId() == userId)
+            return purchaseHistoryService.getLastProductFromHistoryWithoutReview(userId);
+        else
+            throw new UserBadAuthoritiesException(
+                "Вы не можете получить последний товар без отзыва из истории покупок этого пользователя");
+
+    }
+
     @PreAuthorize("hasRole('ROLE_SELLER')")
     @GetMapping("/histories/seller")
     public List<Map<String, Object>> getSellerTotalSum(
