@@ -8,11 +8,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.annette.spring.project.online_store.entity.Discount;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
 @Repository
-public class ProductRepoCustomImpl implements ProductRepoCustom {
+public class ProductRepoCustomImpl extends BaseRepository implements ProductRepoCustom {
 
     @Autowired
     private EntityManager entityManager;
@@ -28,6 +30,10 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
         List<Map<String, Object>> products = new ArrayList<>();
         Map<String, Object> resultMap = fillMap();
 
+        Discount activeDiscount = getActiveDiscount();
+
+        int actualPrice = 0;
+
         for (Object[] object : queryResult) {
             for (int i = 0; i < object.length; i++) {
                 switch (i) {
@@ -41,7 +47,12 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
                         resultMap.put("name", object[i]);
                         break;
                     case 3:
-                        resultMap.put("price", object[i]);
+                        if (activeDiscount != null) {
+                            actualPrice = percent((Integer) object[i], activeDiscount.getSize());
+                            resultMap.put("price", actualPrice);
+                        } else {
+                            resultMap.put("price", object[i]);
+                        }
                         break;
                     case 4:
                         resultMap.put("isAllowed", object[i]);
@@ -70,6 +81,9 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
         List<Object[]> queryResult = query.getResultList();
         Map<String, Object> product = fillMap();
 
+        Discount activeDiscount = getActiveDiscount();
+        int actualPrice = 0;
+
         for (int i = 0; i < queryResult.get(0).length; i++) {
             switch (i) {
                 case 0:
@@ -82,7 +96,12 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
                     product.put("name", queryResult.get(0)[i]);
                     break;
                 case 3:
-                    product.put("price", queryResult.get(0)[i]);
+                    if (activeDiscount != null) {
+                        actualPrice = percent((Integer) queryResult.get(0)[i], activeDiscount.getSize());
+                        product.put("price", actualPrice);
+                    } else {
+                        product.put("price", queryResult.get(0)[i]);
+                    }
                     break;
                 case 4:
                     product.put("isAllowed", queryResult.get(0)[i]);
@@ -111,6 +130,9 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
         List<Map<String, Object>> products = new ArrayList<>();
         Map<String, Object> resultMap = fillMap();
 
+        Discount activeDiscount = getActiveDiscount();
+        int actualPrice = 0;
+
         for (Object[] object : queryResult) {
             for (int i = 0; i < object.length; i++) {
                 switch (i) {
@@ -124,7 +146,12 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
                         resultMap.put("name", object[i]);
                         break;
                     case 3:
-                        resultMap.put("price", object[i]);
+                        if (activeDiscount != null) {
+                            actualPrice = percent((Integer) object[i], activeDiscount.getSize());
+                            resultMap.put("price", actualPrice);
+                        } else {
+                            resultMap.put("price", object[i]);
+                        }
                         break;
                     case 4:
                         resultMap.put("isAllowed", object[i]);
@@ -141,7 +168,7 @@ public class ProductRepoCustomImpl implements ProductRepoCustom {
 
     }
 
-    public static Map<String, Object> fillMap() {
+    private static Map<String, Object> fillMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         Object tmp = new Object();
 

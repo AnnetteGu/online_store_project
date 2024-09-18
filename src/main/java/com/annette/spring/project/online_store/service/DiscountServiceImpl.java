@@ -125,15 +125,9 @@ public class DiscountServiceImpl extends BaseService implements DiscountService 
         }
         else return productRepoCustom.findAllCustom();
 
-    }
+    }    
 
-    private static int percent(int sum, int disc) {
-
-        return (int) (sum - (sum * ((double) disc / 100)));
-
-    }
-
-    private static Map<String, Object> fillMap() {
+    private Map<String, Object> fillMap() {
 
         Map<String, Object> map = new LinkedHashMap<>();
         Object tmp = new Object();

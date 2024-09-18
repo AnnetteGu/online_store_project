@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.annette.spring.project.online_store.entity.Basket;
+import com.annette.spring.project.online_store.entity.Discount;
 import com.annette.spring.project.online_store.entity.Product;
 import com.annette.spring.project.online_store.entity.User;
 import com.annette.spring.project.online_store.repository.BasketRepository;
@@ -39,6 +40,9 @@ public class BasketServiceImpl extends BaseService implements BasketService {
         Map<String, Object> resultMap = fillMap('b');
         Product product;
 
+        Discount activeDiscount = getActiveDiscount();
+        int actualPrice = 0;
+
         for (Basket basket : userBaskets) {
             resultMap.put("id", basket.getId());
             resultMap.put("productId", basket.getProductId());
@@ -46,7 +50,14 @@ public class BasketServiceImpl extends BaseService implements BasketService {
             product = productRepository.findById(basket.getProductId()).get();
 
             resultMap.put("productName", product.getName());
-            resultMap.put("productPrice", product.getPrice());
+
+            if (activeDiscount != null) {
+                actualPrice = percent(product.getPrice(), activeDiscount.getSize());
+                resultMap.put("productPrice", actualPrice);
+            } else {
+                resultMap.put("productPrice", product.getPrice());
+            }
+
             resultMap.put("productAmount", basket.getProductAmount());
 
             basketProducts.add(resultMap);
@@ -133,13 +144,23 @@ public class BasketServiceImpl extends BaseService implements BasketService {
         Product product;
         double totalSum = 0;
 
+        Discount activeDiscount = getActiveDiscount();
+        int actualPrice = 0;
+
         for (Basket basket : userBaskets) {
             resultMap.put("productId", basket.getProductId());
 
             product = productRepository.findById(basket.getProductId()).get();
 
             resultMap.put("productName", product.getName());
-            resultMap.put("productPrice", product.getPrice());
+
+            if (activeDiscount != null) {
+                actualPrice = percent(product.getPrice(), activeDiscount.getSize());
+                resultMap.put("productPrice", actualPrice);
+            } else {
+                resultMap.put("productPrice", product.getPrice());
+            }
+
             resultMap.put("productAmount", basket.getProductAmount());
 
             totalSum += (product.getPrice() * basket.getProductAmount());
